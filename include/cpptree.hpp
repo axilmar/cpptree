@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <stdexcept>
+#include <initializer_list>
 
 
 namespace cpptree {
@@ -106,7 +107,7 @@ namespace cpptree {
          * @exception std::invalid_argument thrown if the child pointer is null, or if the child is not an orphan,
          *  or if next is not a child of this.
          */ 
-        virtual void insert_child(const node_ptr& child, const node_ptr& next = nullptr) {
+        virtual void insert_child(const node_ptr& child, node_ptr next = nullptr) {
             //child must be non-null
             if (!child) {
                 throw std::invalid_argument("cpptree::node::insert_child(child, next): null child pointer.");
@@ -168,12 +169,42 @@ namespace cpptree {
         }
 
         /**
+         * Adds one or more children at the start of the child list.
+         * @param nodes children nods to add; null entries are not added.
+         */ 
+        virtual void prepend_children(const std::initializer_list<node_ptr>& nodes) {
+            insert_children(nodes, get_first_child());
+        }
+
+        /**
+         * Adds one or more children before the given next child node.
+         * @param nodes children nods to add; null entries are not added.
+         * @param next next node.
+         */ 
+        virtual void insert_children(const std::initializer_list<node_ptr>& nodes, node_ptr next) {
+            for (auto it = nodes.begin(); it != nodes.end(); ++it) {
+                const node_ptr& node = *it;
+                if (node) {
+                    insert_child(node, next);
+                }
+            }
+        }
+
+        /**
+         * Adds one or more children at the end of the child list.
+         * @param nodes children nods to add; null entries are not added.
+         */ 
+        virtual void append_children(const std::initializer_list<node_ptr>& nodes) {
+            insert_children(nodes, nullptr);
+        }
+
+        /**
          * Removes the children of a node and inserts them to this, before the given next node.
          * @param parent the parent node to tranfer nodes from.
          * @param next the next child; if null, the children are added at the end of the child list.
          * @exception std::invalid_argument thrown if parent is null, if parent is this, or if next is not a child of this.
          */ 
-        virtual void insert_all_children(const node_ptr& parent, const node_ptr& next = nullptr) {
+        virtual void insert_all_children(const node_ptr& parent, node_ptr next = nullptr) {
             //parent must not be null
             if (!parent) {
                 throw std::invalid_argument("cpptree::node::insert_all_children(parent, next): null parent pointer.");

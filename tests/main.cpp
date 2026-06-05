@@ -115,6 +115,68 @@ static void test_insert_child() {
 }
 
 
+static void test_insert_children() {
+    //insert last
+    {
+        std::shared_ptr<test_node> root = std::make_shared<test_node>("root");
+        std::shared_ptr<test_node> first = std::make_shared<test_node>("first");
+        root->append_child(first);
+
+        std::shared_ptr<test_node> child1 = std::make_shared<test_node>("child1");
+        std::shared_ptr<test_node> child2 = std::make_shared<test_node>("child2");
+        std::shared_ptr<test_node> child3 = std::make_shared<test_node>("child3");
+
+        root->append_children({child1, child2, child3});
+
+        check_node(root, "root", nullptr, nullptr, nullptr, first, child3);
+        check_node(first, "first", root, nullptr, child1, nullptr, nullptr);
+        check_node(child1, "child1", root, first, child2, nullptr, nullptr);
+        check_node(child2, "child2", root, child1, child3, nullptr, nullptr);
+        check_node(child3, "child3", root, child2, nullptr, nullptr, nullptr);
+    }
+
+    //insert first
+    {
+        std::shared_ptr<test_node> root = std::make_shared<test_node>("root");
+        std::shared_ptr<test_node> last = std::make_shared<test_node>("last");
+        root->append_child(last);
+
+        std::shared_ptr<test_node> child1 = std::make_shared<test_node>("child1");
+        std::shared_ptr<test_node> child2 = std::make_shared<test_node>("child2");
+        std::shared_ptr<test_node> child3 = std::make_shared<test_node>("child3");
+
+        root->prepend_children({child1, child2, child3});
+
+        check_node(root, "root", nullptr, nullptr, nullptr, child1, last);
+        check_node(child1, "child1", root, nullptr, child2, nullptr, nullptr);
+        check_node(child2, "child2", root, child1, child3, nullptr, nullptr);
+        check_node(child3, "child3", root, child2, last, nullptr, nullptr);
+        check_node(last, "last", root, child3, nullptr, nullptr, nullptr);
+    }
+
+    //insert middle
+    {
+        std::shared_ptr<test_node> root = std::make_shared<test_node>("root");
+        std::shared_ptr<test_node> first = std::make_shared<test_node>("first");
+        root->append_child(first);
+        std::shared_ptr<test_node> last = std::make_shared<test_node>("last");
+        root->append_child(last);
+
+        std::shared_ptr<test_node> child1 = std::make_shared<test_node>("child1");
+        std::shared_ptr<test_node> child2 = std::make_shared<test_node>("child2");
+        std::shared_ptr<test_node> child3 = std::make_shared<test_node>("child3");
+        root->insert_children({child1, child2, child3}, last);
+
+        check_node(root, "root", nullptr, nullptr, nullptr, first, last);
+        check_node(first, "first", root, nullptr, child1, nullptr, nullptr);
+        check_node(child1, "child1", root, first, child2, nullptr, nullptr);
+        check_node(child2, "child2", root, child1, child3, nullptr, nullptr);
+        check_node(child3, "child3", root, child2, last, nullptr, nullptr);
+        check_node(last, "last", root, child3, nullptr, nullptr, nullptr);
+    }
+}
+
+
 static void test_insert_all_children() {
     //insert last
     {
@@ -283,6 +345,7 @@ static void test_remove_all_children() {
 int main() {
     test_create_node();
     test_insert_child();
+    test_insert_children();
     test_insert_all_children();
     test_remove_child();
     test_remove_all_children();
